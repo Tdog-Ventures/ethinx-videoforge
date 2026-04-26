@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { deriveRenderUi } from "@/lib/render-state";
@@ -160,6 +160,7 @@ const renderPage = () =>
 
 describe("GeneratedVideos — FacelessForge render integration (live)", () => {
   beforeEach(() => {
+    vi.useRealTimers();
     h.invokeMock.mockReset();
     h.sampleAsset.render_job_id = null;
     h.sampleAsset.rendered_video_url = null;
@@ -270,6 +271,53 @@ describe("GeneratedVideos — FacelessForge render integration (live)", () => {
     renderPage();
     expect(await screen.findByTestId("render-restart")).toBeInTheDocument();
     expect(screen.getByText(/Render cancelled/i)).toBeInTheDocument();
+  });
+
+  it("polls the latest loaded render job after queuing a render", async () => {
+    const user = userEvent.setup();
+    let pollTick: (() => void) | undefined;
+    const realSetInterval = globalThis.setInterval;
+    const setIntervalSpy = vi.spyOn(globalThis, "setInterval").mockImplementation((handler, timeout, ...args) => {
+      if (timeout === 5000) {
+        pollTick = handler as () => void;
+        return 1 as ReturnType<typeof setInterval>;
+      }
+      return realSetInterval(handler, timeout, ...args);
+    });
+    h.invokeMock.mockImplementation((fnName: string) => {
+      if (fnName === "render-video") {
+        h.sampleAsset.render_job_id = "ff_new";
+        h.sampleAsset.render_status = "queued";
+        h.sampleAsset.rendered_video_url = null;
+        return Promise.resolve({
+          data: { job_id: "ff_new", render_job_id: "ff_new", status: "queued" },
+          error: null,
+        });
+      }
+      return Promise.resolve({
+        data: { job_id: "ff_new", status: "running", video_url: null },
+        error: null,
+      });
+    });
+
+    renderPage();
+    const btn = await screen.findByTestId("render-video");
+    await user.click(btn);
+    await screen.findByTestId("render-pending");
+
+    try {
+      await waitFor(() => expect(pollTick).toBeDefined());
+      await act(async () => {
+        await pollTick?.();
+      });
+
+      const statusCall = h.invokeMock.mock.calls.find(([name]) => name === "render-video-status");
+      expect(statusCall?.[1]).toMatchObject({
+        body: { job_id: "ff_new", asset_id: ASSET_ID },
+      });
+    } finally {
+      setIntervalSpy.mockRestore();
+    }
   });
 });
 
