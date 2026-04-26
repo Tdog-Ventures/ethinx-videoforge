@@ -1,0 +1,4 @@
+project_id = "eejnkddyhrxzaunlksag"
+
+[functions.send-dfy-order-notification]
+verify_jwt = false

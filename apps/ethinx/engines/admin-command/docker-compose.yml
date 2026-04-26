@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  ethinx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ethinx/core:latest
+    container_name: ethinx
+    restart: always
+    ports:
+      - "80:3000"
+    volumes:
+      - ethinx_data:/app/data
+      - ethinx_logs:/var/log/nginx
+    environment:
+      - NODE_ENV=production
+      - TZ=UTC
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /var/run:size=10M
+      - /var/cache/nginx:size=50M
+
+volumes:
+  ethinx_data:
+    driver: local
+  ethinx_logs:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

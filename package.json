@@ -1,0 +1,19 @@
+{
+  "name": "ethinx-videoforge",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Monorepo combining ETHINX Lovable projects with the FacelessForge render engine.",
+  "type": "module",
+  "workspaces": [
+    "apps/ethinx",
+    "apps/ethinx/engines/*",
+    "apps/facelessforge"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:ethinx": "npm run build --workspace @ethinx/control-layer && npm run build --workspace @ethinx/admin-command && npm run build --workspace @ethinx/launchpad && npm run build --workspace @ethinx/creator-blueprint && npm run build --workspace @ethinx/video-velocity && npm run build --workspace @ethinx/showcase && npm run build --workspace @ethinx/creator-os-launchpad && npm run build --workspace @ethinx/neon-studio && npm run build --workspace @ethinx/partner-program && npm run build --workspace @ethinx/creator-growth-hub",
+    "build:facelessforge": "npm run build --workspace @ethinx/facelessforge",
+    "test:ethinx-render": "npm run test --workspace @ethinx/control-layer -- src/test/generated-videos.render.test.tsx",
+    "test": "npm run test --workspaces --if-present"
+  }
+}

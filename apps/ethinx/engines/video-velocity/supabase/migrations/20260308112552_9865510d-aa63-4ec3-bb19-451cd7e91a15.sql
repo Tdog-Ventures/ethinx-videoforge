@@ -1,0 +1,1 @@
+DELETE FROM dfy_orders WHERE email LIKE '%test%' OR email LIKE '%example%' OR name LIKE '%test%';

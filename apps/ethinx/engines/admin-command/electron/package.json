@@ -1,0 +1,111 @@
+{
+  "name": "ethinx-desktop",
+  "version": "1.0.0",
+  "description": "ETHINX Executive Command Portal - Desktop Application",
+  "main": "electron/main.js",
+  "author": {
+    "name": "ETHINX",
+    "email": "admin@ethinx.com"
+  },
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev": "concurrently \"npm run dev:web\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev:web": "vite",
+    "build": "vite build",
+    "build:electron": "npm run build && electron-builder",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:linux": "npm run build && electron-builder --linux",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.ethinx.executive",
+    "productName": "ETHINX",
+    "copyright": "Copyright © 2024 ETHINX",
+    "directories": {
+      "output": "release",
+      "buildResources": "electron/assets"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "!electron/assets/raw/**"
+    ],
+    "extraResources": [
+      {
+        "from": "electron/assets/",
+        "to": "assets/",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "electron/assets/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "publisherName": "ETHINX",
+      "verifyUpdateCodeSignature": true,
+      "requestedExecutionLevel": "asInvoker",
+      "signingHashAlgorithms": ["sha256"],
+      "sign": "scripts/sign.js",
+      "signDlls": true,
+      "certificateSubjectName": "ETHINX",
+      "rfc3161TimeStampServer": "http://timestamp.digicert.com"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "installerIcon": "electron/assets/icon.ico",
+      "uninstallerIcon": "electron/assets/icon.ico",
+      "installerHeader": "electron/assets/installer-header.bmp",
+      "installerSidebar": "electron/assets/installer-sidebar.bmp",
+      "installerHeaderIcon": "electron/assets/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ETHINX",
+      "menuCategory": "Business",
+      "include": "electron/installer.nsh",
+      "license": "LICENSE.txt",
+      "warningsAsErrors": false,
+      "runAfterFinish": true
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.${ext}"
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "icon": "electron/assets/icon.icns",
+      "category": "public.app-category.business",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "electron/assets/icons",
+      "category": "Office",
+      "maintainer": "admin@ethinx.com"
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "https://releases.ethinx.com"
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "wait-on": "^7.2.0"
+  }
+}

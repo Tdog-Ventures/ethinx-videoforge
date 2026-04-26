@@ -1,0 +1,1 @@
+ALTER TABLE public.enrollments ADD CONSTRAINT enrollments_email_tier_unique UNIQUE (email, tier);

@@ -1,0 +1,44 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import Index from "./pages/Index";
+import CurriculumPage from "./pages/CurriculumPage";
+import AdEnginePage from "./pages/AdEnginePage";
+import EmailTemplatesPage from "./pages/EmailTemplatesPage";
+import CommunityPage from "./pages/CommunityPage";
+import SupportPage from "./pages/SupportPage";
+import PricingPage from "./pages/PricingPage";
+import LoginPage from "./pages/LoginPage";
+import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/curriculum" element={<ProtectedRoute><CurriculumPage /></ProtectedRoute>} />
+            <Route path="/adengine" element={<ProtectedRoute><AdEnginePage /></ProtectedRoute>} />
+            <Route path="/templates" element={<ProtectedRoute><EmailTemplatesPage /></ProtectedRoute>} />
+            <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
+            <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
+);
+
+export default App;

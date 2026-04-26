@@ -1,0 +1,1 @@
+DELETE FROM dfy_orders WHERE name = 'Troy Test Order' AND email = 'troy@ethinx.com';

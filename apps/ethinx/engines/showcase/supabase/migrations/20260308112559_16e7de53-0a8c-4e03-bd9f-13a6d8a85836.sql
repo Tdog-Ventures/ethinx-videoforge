@@ -1,0 +1,1 @@
+UPDATE public.site_stats SET stat_value = '1500', updated_at = now() WHERE stat_key = 'videos_generated';

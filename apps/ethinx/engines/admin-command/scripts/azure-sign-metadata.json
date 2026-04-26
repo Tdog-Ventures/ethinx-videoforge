@@ -1,0 +1,6 @@
+{
+  "Endpoint": "${AZURE_SIGN_ENDPOINT}",
+  "CodeSigningAccountName": "${AZURE_SIGN_ACCOUNT}",
+  "CertificateProfileName": "${AZURE_SIGN_CERT_PROFILE}",
+  "CorrelationId": "ethinx-build"
+}
