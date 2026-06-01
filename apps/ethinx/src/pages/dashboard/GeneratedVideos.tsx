@@ -202,6 +202,8 @@ const GeneratedVideos = () => {
   const [renderingNow, setRenderingNow] = useState<Set<string>>(new Set());
   const [cancellingNow, setCancellingNow] = useState<Set<string>>(new Set());
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rowsRef = useRef<AssetRecord[]>([]);
+  const pollingRef = useRef<Set<string>>(new Set());
 
   const load = async () => {
     if (!user) return;
@@ -220,7 +222,11 @@ const GeneratedVideos = () => {
         .select("id, asset_id, status, channel, scheduled_at, sent_at"),
     ]);
     if (error) setError(error.message);
-    else setRows((data ?? []) as unknown as AssetRecord[]);
+    else {
+      const nextRows = (data ?? []) as unknown as AssetRecord[];
+      rowsRef.current = nextRows;
+      setRows(nextRows);
+    }
     setTasks(taskData ?? []);
     setLoading(false);
   };
@@ -229,6 +235,14 @@ const GeneratedVideos = () => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
+
+  useEffect(() => {
+    rowsRef.current = rows;
+  }, [rows]);
+
+  useEffect(() => {
+    pollingRef.current = polling;
+  }, [polling]);
 
   const defaultScheduled = useMemo(() => {
     const d = new Date();
@@ -270,6 +284,7 @@ const GeneratedVideos = () => {
       for (const r of rows) {
         if (r.render_job_id && !r.rendered_video_url) next.add(r.id);
       }
+      pollingRef.current = next;
       return next;
     });
   }, [rows]);
@@ -285,13 +300,14 @@ const GeneratedVideos = () => {
     }
     if (pollTimer.current) return; // already running
     pollTimer.current = setInterval(async () => {
-      const ids = Array.from(polling);
+      const ids = Array.from(pollingRef.current);
       for (const id of ids) {
-        const row = rows.find((r) => r.id === id);
+        const row = rowsRef.current.find((r) => r.id === id);
         if (!row?.render_job_id) {
           setPolling((p) => {
             const n = new Set(p);
             n.delete(id);
+            pollingRef.current = n;
             return n;
           });
           continue;
@@ -305,6 +321,7 @@ const GeneratedVideos = () => {
           setPolling((p) => {
             const n = new Set(p);
             n.delete(id);
+            pollingRef.current = n;
             return n;
           });
           // Re-load the asset so any new rendered_video_url surfaces.
@@ -376,8 +393,12 @@ const GeneratedVideos = () => {
       title: "Render queued",
       description: `Job ${jobId}`,
     });
-    setPolling((p) => new Set(p).add(rec.id));
     await load();
+    setPolling((p) => {
+      const n = new Set(p).add(rec.id);
+      pollingRef.current = n;
+      return n;
+    });
   };
 
   const handleRetry = async (rec: AssetRecord, meta: VideoForgeMeta) => {
@@ -438,6 +459,7 @@ const GeneratedVideos = () => {
     setPolling((p) => {
       const n = new Set(p);
       n.delete(rec.id);
+      pollingRef.current = n;
       return n;
     });
 
