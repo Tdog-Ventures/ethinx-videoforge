@@ -30,7 +30,7 @@ interface RenderInput {
   scene_breakdown: SceneIn[];
   stock_footage_terms: unknown[];
   captions: { short_caption?: string; long_caption?: string };
-  voiceover_notes: unknown;
+  voiceover_notes: string;
 }
 
 function isUuid(s: unknown): s is string {
@@ -58,7 +58,11 @@ function validate(body: unknown): { ok: true; data: RenderInput } | { ok: false;
         short_caption: typeof caps.short_caption === "string" ? caps.short_caption : undefined,
         long_caption: typeof caps.long_caption === "string" ? caps.long_caption : undefined,
       },
-      voiceover_notes: b.voiceover_notes ?? null,
+      voiceover_notes: typeof b.voiceover_notes === "string"
+        ? b.voiceover_notes
+        : b.voiceover_notes == null
+        ? ""
+        : JSON.stringify(b.voiceover_notes),
     },
   };
 }
