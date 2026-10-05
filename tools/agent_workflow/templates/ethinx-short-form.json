@@ -1,0 +1,11 @@
+{
+  "max_attempts": 3,
+  "max_repairs": 2,
+  "timeout_seconds": 900,
+  "roles": {
+    "investigator": ["python3", "tools/agent_workflow/opencode_adapter.py", "--agent", "plan"],
+    "builder": ["python3", "tools/agent_workflow/opencode_adapter.py", "--agent", "build"],
+    "verifier": ["python3", "tools/agent_workflow/media_gate.py", "--host", "videos.ethinx.solutions", "--width", "1080", "--height", "1920", "--duration", "15"],
+    "operator": ["python3", "tools/agent_workflow/operator_gate.py"]
+  }
+}

@@ -1,5 +1,9 @@
 # ethinx-videoforge
 
+## Adaptive agent workflow
+
+Durable role orchestration, bounded retries, repair routing and a downloadable MP4 gate are documented in [tools/agent_workflow/README.md](tools/agent_workflow/README.md). Run `npm run test:agent-workflow` to verify the coordinator and HTTP/FFmpeg checks. Production renderer recovery and deployment remain separate verification steps.
+
 Monorepo combining the Lovable ETHINX control layer with the Emergent/FacelessForge render engine.
 
 ## Apps
