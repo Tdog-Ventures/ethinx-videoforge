@@ -1,0 +1,19 @@
+name: Agent workflow checks
+on:
+  push:
+    paths: ['tools/agent_workflow/**', '.github/workflows/agent-workflow.yml']
+  pull_request:
+    paths: ['tools/agent_workflow/**', '.github/workflows/agent-workflow.yml']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: python3 -m unittest discover -s tools/agent_workflow/tests -v
